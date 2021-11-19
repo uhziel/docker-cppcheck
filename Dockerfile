@@ -1,8 +1,5 @@
 FROM buildpack-deps:bullseye as build-stage
 
-LABEL description="生成cppcheck镜像。"
-LABEL project="https://github.com/uhziel/docker-cppcheck"
-
 ENV LANG="C.UTF-8"
 ENV TZ="Asia/Shanghai"
 
@@ -23,6 +20,9 @@ RUN set -eux; \
         make install;
 
 FROM debian:bullseye as production-stage
+
+LABEL description="生成cppcheck镜像。"
+LABEL project="https://github.com/uhziel/docker-cppcheck"
 
 COPY --from=build-stage /usr/local/bin/cppcheck /usr/local/bin/cppcheck
 COPY --from=build-stage /usr/local/share/Cppcheck /usr/local/share/Cppcheck
