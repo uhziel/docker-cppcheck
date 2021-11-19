@@ -1,8 +1,5 @@
 FROM buildpack-deps:bullseye as build-stage
 
-ENV LANG="C.UTF-8"
-ENV TZ="Asia/Shanghai"
-
 RUN set -eux; \
         sed -i~ 's/http:\/\/\w*\.debian\.org/http:\/\/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list; \
         apt-get update; \
@@ -23,6 +20,9 @@ FROM debian:bullseye as production-stage
 
 LABEL description="生成cppcheck镜像。"
 LABEL project="https://github.com/uhziel/docker-cppcheck"
+
+ENV LANG="C.UTF-8"
+ENV TZ="Asia/Shanghai"
 
 COPY --from=build-stage /usr/local/bin/cppcheck /usr/local/bin/cppcheck
 COPY --from=build-stage /usr/local/share/Cppcheck /usr/local/share/Cppcheck
