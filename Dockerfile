@@ -1,5 +1,10 @@
 FROM buildpack-deps:bullseye as build-stage
 
+LABEL description="生成cppcheck镜像。"
+LABEL project="https://github.com/uhziel/docker-cppcheck"
+
+ENV LANG="C.UTF-8"
+
 RUN set -eux; \
         apt-get update; \
         apt-get install -y --no-install-recommends \
