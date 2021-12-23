@@ -1,0 +1,48 @@
+FROM centos:8 as build-stage
+
+ENV LANG="C.UTF-8"
+
+RUN set -eux; \
+        sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+            -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
+            -i.bak \
+            /etc/yum.repos.d/CentOS-*.repo; \
+        yum makecache; \
+        yum -y update; \
+        yum -y install \
+            git \
+            cmake \
+            pcre-devel \
+            gcc \
+            gcc-c++ \
+            python3 \
+        ; \
+        yum clean all;
+
+RUN set -eux; \
+        git clone --single-branch --branch 1.90-h3d1 https://github.com/uhziel/cppcheck.git --depth 1; \
+        cd cppcheck && mkdir buildrelease && cd buildrelease; \
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DHAVE_RULES=ON ..; \
+        make -j8; \
+        make test; \
+        make install;
+
+FROM centos:8 as production-stage
+
+LABEL description="生成cppcheck镜像。"
+LABEL project="https://github.com/uhziel/docker-cppcheck"
+
+ENV LANG="C.UTF-8"
+ENV TZ="Asia/Shanghai"
+
+RUN set -eux; \
+        sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+            -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
+            -i.bak \
+            /etc/yum.repos.d/CentOS-*.repo; \
+        yum makecache; \
+        yum -y update; \
+        yum clean all;
+
+COPY --from=build-stage /usr/local/bin/cppcheck /usr/local/bin/cppcheck
+COPY --from=build-stage /usr/local/share/Cppcheck /usr/local/share/Cppcheck
