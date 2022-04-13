@@ -1,8 +1,9 @@
-all:
-	 docker build -t uhziel/cppcheck:1.90-h3d1 .
+IMG ?= uhziel/cppcheck:1.90-h3d1
 
-run:
-	docker run -it --rm uhziel/cppcheck:1.90-h3d1 
+docker: docker-build docker-push
 
-push:
-	 docker push uhziel/cppcheck:1.90-h3d1
+docker-build:
+	docker build -t ${IMG} .
+
+docker-push:
+	docker push ${IMG}
